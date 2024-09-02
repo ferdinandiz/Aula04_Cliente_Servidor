@@ -4,10 +4,7 @@ import com.mensageria.config.ConnectionFactory;
 import com.mensageria.model.Alunos;
 import com.mensageria.model.Cursos;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,17 +17,29 @@ public class AlunoDAO implements IAlunoDAO {
             String query = "INSERT into alunos " +
                     "(nome, telefone, maioridade, curso, sexo)" +
                     "values (?,?,?,?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, aluno.getNome());
             preparedStatement.setString(2, aluno.getTelefone());
             preparedStatement.setBoolean(3, aluno.isMaioridade());
             preparedStatement.setString(4, aluno.getCurso().toString());
             preparedStatement.setString(5, aluno.getSexo());
             preparedStatement.executeUpdate();
+
+            // recuperando o ID
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                aluno.setMatricula(resultSet.getLong("matricula"));
+                aluno.setNome(resultSet.getString("nome"));
+                aluno.setTelefone(resultSet.getString("telefone"));
+                aluno.setMaioridade(resultSet.getBoolean("maioridade"));
+                aluno.setCurso(Cursos.valueOf(resultSet.getString("curso")));
+                aluno.setSexo(resultSet.getString("sexo"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return aluno;
     }
 
     @Override

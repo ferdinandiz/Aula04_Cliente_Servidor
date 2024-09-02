@@ -4,12 +4,15 @@ package com.mensageria;
 
 import com.mensageria.dao.AlunoDAO;
 import com.mensageria.model.Alunos;
+import com.mensageria.model.Cursos;
+import com.mensageria.util.Funcoes;
 
 import java.util.List;
 import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) {
+
         AlunoDAO dao = new AlunoDAO();
         Alunos aluno = new Alunos();
         /*
@@ -33,14 +36,19 @@ public class Main {
 
         Optional<Alunos> a = dao.findById(3l);
 
-        System.err.println(a.get().getNome());
+        Funcoes.print(a.get());
 
         List<Alunos> alunos = dao.findAll();
-        System.err.println("----------------------------------");
-        for (Alunos aluno1 : alunos) {
-            System.out.println(aluno1.getNome());
-        }
 
+        Funcoes.printList(alunos);
+
+        aluno.setNome("Roberto Parametro");
+        aluno.setSexo("masculino");
+        aluno.setMaioridade(false);
+        aluno.setTelefone("33344456");
+        aluno.setCurso(Cursos.OUTROS);
+        dao.create(aluno);
+        Funcoes.print(aluno);
 
     }
 }
