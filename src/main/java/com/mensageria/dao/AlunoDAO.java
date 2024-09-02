@@ -123,6 +123,27 @@ public class AlunoDAO implements IAlunoDAO {
 
     @Override
     public List<Alunos> findByCurso(Cursos curso) {
-        return List.of();
+        List<Alunos> alunos = new ArrayList<>();
+        String query = "SELECT * FROM alunos WHERE curso = ?";
+
+        try (Connection connection = ConnectionFactory.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, String.valueOf(curso));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Alunos aluno = new Alunos();
+                aluno.setMatricula(resultSet.getLong("matricula"));
+                aluno.setNome(resultSet.getString("nome"));
+                aluno.setTelefone(resultSet.getString("telefone"));
+                aluno.setMaioridade(resultSet.getBoolean("maioridade"));
+                aluno.setCurso(Cursos.valueOf(resultSet.getString("curso")));
+                aluno.setSexo(resultSet.getString("sexo"));
+                alunos.add(aluno);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return alunos;
     }
 }
